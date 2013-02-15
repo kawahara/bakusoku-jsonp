@@ -17,14 +17,23 @@ void function(global, document) {
           , i, len, attr
           , filter, timeout
           , cblabel
+          , useCamelize = false
           , params = {}
         ;
+
+        // attribute が 小文字しか対応していないことの対応
+        // true にすると item-code -> itemCodeになる
+        if (attrs['data-camelize']) {
+            if ('true' === attrs['data-camelize'].nodeValue.toLowerCase()) {
+                useCamelize = true;
+            }
+        }
 
         //パラメータを収集
         for (i=0, len=attrs.length; i<len; i++) {
             attr = attrs[i];
             if (/^data-p-(.+)$/.test(attr.name)) {
-                params[RegExp.$1] = attr.nodeValue;
+                params[useCamelize ? camelize(RegExp.$1) : RegExp.$1] = attr.nodeValue;
             }
         }
 
@@ -200,6 +209,15 @@ void function(global, document) {
                 listener.call(global, global.event);
             });
         }
+    }
+
+    /**
+     * camelize
+     */
+    function camelize(s) {
+        return s.replace(/-(\w)/g, function(m, c) {
+            return c ? c.toUpperCase() : '';
+        });
     }
 
 }(this, document);
